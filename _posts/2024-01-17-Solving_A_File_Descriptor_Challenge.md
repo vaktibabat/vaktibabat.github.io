@@ -6,7 +6,7 @@ tags: [ctf_writeup]
 ---
 
 # Intro
-Hi! Today we're going to solve a challenge from the awesome website [pwnable.kr](https;//pwnable.kr) that has to do with file descriptors. Without further ado, let's jump in.
+Hi! Today we're going to solve a challenge from the awesome website pwnable.kr that has to do with file descriptors. Without further ado, let's jump in.
 # The Challenge
 So the challenge runs on an ssh box. We log in as a user named `fd`, which stands for file descriptor, which is our main topic today, and in our home directory we find the following files:
 ![the-files](/assets/img/fd/Pasted image 20240116190427.png)
