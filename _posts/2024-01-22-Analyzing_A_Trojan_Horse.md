@@ -239,7 +239,7 @@ Let's look at the next block:
 ![creatrpcoessa-block](/assets/img/analyzingtrojan/createprocessa_block.png)
 _The CreateProcessA call_
 Let's look at the parameters in OllyDbg:
-![olly-createprocessa](olly_createprocessa.png)
+![olly-createprocessa](/assets/img/analyzingtrojan/olly_createprocessa.png)
 _The parameters in OllyDbg_
 The call to [CreateProcessA](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa) just runs the binary that was saved to `C:\Windows\system32\msupd.exe`. The further confirms our suspicion that `Accl3.jpg` is not a real JPG.
 
