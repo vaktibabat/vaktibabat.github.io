@@ -161,6 +161,7 @@ int main() {
 		0);
 }
 ```
+
 The code already has comments, so I won't explain it further.
 ## Back To Our Analysis
 Now that we know what the registry is and how to use it, we can see that the call to `RegCreateKeyExA` simply obtains a handle to the registry key `HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run`. This registry key controls the processes that automatically start when the machine is booted up, and malware often uses it for persistence. The malware then sets the value of the registry key:
