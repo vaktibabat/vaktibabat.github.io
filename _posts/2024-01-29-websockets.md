@@ -79,6 +79,7 @@ There are a few things to unpack here. In the client's request:
 - `Sec-WebSocket-Key` is a random key that the client sends to the server so that the connection between them would be secure. We'll see how this is done in a moment
 - `Sec-WebSocket-Version` is the WebSocket version
 Let's do a quick check in our server code for these headers:
+
 ```rust
 fn handle_client(mut stream: TcpStream) {
 let mut data = [0 as u8; 1024];
@@ -135,6 +136,7 @@ false
 Then, the `Sec-WebSocket-Accept` header that the server responds with is computed as follows:
 `computed_sec_websocket_accept = Base64Encode(SHA1(the_key_that_the_client_sent + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"))`
 The random UUID is a magic value and doesn't have any special meaning. Let's add the response of the handshake to our code:
+
 ```rust
 let mut hasher = Sha1::new();
 
@@ -157,6 +159,7 @@ let response = "HTTP/1.1 101 Switching Protocols".to_owned()
 
 stream.write_all(response.as_bytes()).unwrap();
 ```
+
 If the handshake is successful, the client and the server can exchange messages according to the following format:
 ![message-format](/assets/img/websockets/message_format.png)
 _The WebSocket message format_
@@ -167,6 +170,7 @@ This means that:
 The message is decoded as follows:
 $D_i = E_i \oplus M_{i \% 4}$
 Where $D$ is the decoded message, $E$ is the encoded message, and $M$ is the mask. Let's add this to our code:
+
 ```rust
 // Message is a WebSocket. We're not doing error checking here to not make the code more complex
 let payload_length = data[1] & 0b01111111;
