@@ -5,8 +5,6 @@ categories: [rust, machine_learning]
 tags: [post]
 ---
 
-{% include mathjax.html %}
-
 # Prelude
 Hello Everyone! This post is the first in a two-part series where we implement a WebApp that recognizes digits from scratch:
 - In this part, we implement a Neural Network from scratch in Rust. The math behind Neural Networks (or Neural Nets for short) is explained here, so you don't have to know anything about them to read this post :)
