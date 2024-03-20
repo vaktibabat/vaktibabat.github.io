@@ -25,8 +25,6 @@ description: >- # used by seo meta and the atom feed
 # e.g. 'https://username.github.io', note that it does not end with a '/'.
 url: "https://vaktibabat.github.io"
 
-markdown: kramdown
-
 github:
   username: vaktibabat # change to your github username
 
