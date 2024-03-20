@@ -15,6 +15,7 @@ In this post we tackle the problem the problem of digit recognition, which is co
 ![mnist-3.0.1](/assets/img/neuralnet/mnist-3.0.1.png)
 _Source: [https://www.researchgate.net/figure/Example-images-from-the-MNIST-dataset_fig1_306056875](https://www.researchgate.net/figure/Example-images-from-the-MNIST-dataset_fig1_306056875)_
 To help us, we are provided a **dataset** ([MNIST](https://en.wikipedia.org/wiki/MNIST_database)) of 70000 handwritten digits together with what digit they represent (this is called the **label**, and it's what we're trying to predict). This dataset is provided in a CSV file, and we parse it with the following code:
+
 ```rust
 const NUM_FEATURES: usize = 784;
 const LINE_SIZE: usize = 785;
@@ -87,6 +88,7 @@ fn parse_dataset(path: &str) -> Dataset {
     Dataset { data, target }
 }
 ```
+
 Now that we parsed the dataset, we can use it to train the neural net.
 # Neural Networks
 _Note: Throughout this post I use the term "Neural Networks" to refer to feedforward, fully connected neural networks, although there exist other types of neural nets like Convolutional Neural Networks and Recurrent Neural Networks_
@@ -107,6 +109,7 @@ fn softmax(scores: ArrayView1<f64>) -> Array1<f64> {
         .collect()
 }
 ```
+
 - All other layers lie between the input and the output layer, and are called **hidden layers**. They can be of any size, but different sizes and number of hidden layers will of course affect the performance of the network. 
 Each neuron $i$ in layer $k$ is connected to every neuron $j$ in layer $k+1$ with some weight $w^{(k)}_{i,j}$. 
 There is also a special neuron in every layer (except for the output layer) called the **bias neuron**. The bias neuron always outputs $1$, and is also connected to every neuron in the next layer. Throughout this post, we denote the weight between the bias neuron in layer $k$ with neuron $i$ in layer $k+1$ with $b^{(k)}_i$.
@@ -135,6 +138,7 @@ $$H^{(k)} = W^{(k)} H^{(k - 1)} + b^{(k)}$$
 Where $H^{(k)}$ is the value of layer $k$, $W^{(k)}$ is weight matrix between layer $k - 1$ and layer $k$, $H^{(k - 1)}$ is the value of layer $k - 1$, and $b^{(k)}$ is the bias of layer $k$ (the addition of $b^{(k)}$ is added to all rows of the matrix $W^{(k)} H^{(k - 1)}$ if it contain multiple rows; this is called broadcasting). 
 Note that if we input multiple instances to the network at the same time (a matrix $X$ with multiple rows, where each row is an instance), each neuron outputs a column vector and not a number like when $X$ contains one row.
 We can use this to implement the **forward pass** of the network, which means computing the values of each of the layers (throughout this project we use the ReLU function as the activation function):
+
 ```rust
 /// Represents a neural net
 struct NeuralNet {
@@ -226,6 +230,7 @@ fn relu(z: f64) -> f64 {
     z.max(0f64)
 }
 ```
+
 Now that we know what a Neural Net is, let's see how to **train** it on the problem of Digit Recognition. Training is the process of tweaking the weights and biases until we get to a point where the network can classify 
 # Training the Network
 To train the network, we first need a measure of how bad the network did on a specific batch of inputs. This measure is called the **loss function**, and in the case of multiclass classification, the most common loss function is called the [cross-entropy loss function](https://en.wikipedia.org/wiki/Cross-entropy), and is defined on some batch as $L = -\frac{1}{m} \sum_{i = 1}^{m} \sum_{k = 1}^{K} y^{(i)}_k \log (\hat{p}^{(i)}_k)$ , where:
@@ -234,6 +239,7 @@ To train the network, we first need a measure of how bad the network did on a sp
 - $y^{(i)}_k$ is 1 if instance $i$ is in class $k$ and 0 otherwise,
 - $\hat{p}^{(i)}_k$ is the probability that the network predicted of the i-th instance being in class $k$ (the k-th value in the softmax result of instance $i$). 
 This function is implemented as follows (`actual` is the network's predictions and `target` is the target):
+
 ```rust
 /// Calculate the cross-entropy loss on a given batch
 fn cross_entropy(actual: &Array2<f64>, target: ArrayView2<f64>) -> f64 {
@@ -246,12 +252,14 @@ fn cross_entropy(actual: &Array2<f64>, target: ArrayView2<f64>) -> f64 {
     -1f64 * (1f64 / actual.nrows() as f64) * total
 }
 ```
+
 To make the network perform well on the task of digit classification, we of course want to minimize this loss function. But how do we do that? This function is dependent on thousands of parameters (the weights and biases) and is super complicated, so we can't just find its minimum like a "simple" function (finding where the derivative is zero, solving an equation etc.). If so, we'll have to turn to other means, namely numerical approximations. The method we'll use here is one of the most popular ones for approximating the minimum of a function, and is called [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent). It uses the property of the gradient that says that the gradient is the direction of steepest ascent, and conversely the direction opposite the gradient is the direction of steepest descent. A good analogy for this is to think of a ball standing somewhere on a curve. The ball always rolls in the steepest direction, until it gets to a point where the gradient is 0 (a minimum). The process is defined as follows: 
 1. Let $\theta^{(1)}$ be some random vector of length $n$.
 2. Do $$\theta^{(n + 1)} = \theta^{(n)} - \alpha \cdot \nabla(\theta^{(n)})$$ Until you get to a desired accuracy 
 The parameter $\alpha$ is called the **learning rate**, and determines the size of the steps we take. If we set it too high, the algorithm will diverge and not find a minimum. If we set it too low, we will take very small steps and possibly get stuck in a **local minimum** (where the gradient is 0, so standard GD can't escape it). Here is an illustration on the function $f(x, y) = x^2 + y^2$:
 ![gd-example](/assets/img/neuralnet/gd_example.png)
 Several variations of GD exist, such as Stochastic GD and mini-batch GD. Specifically, in this post, we use mini-batch GD, which is similar to standard GD, except that we take small batches (for example 50 instances) of the data each time and compute the gradient of the loss function with respect to the batch, and not WRT the entire dataset. We use this variation because it allows us to escape local minima, and is also faster. The code for training ("fitting") the model to the dataset is shown here:
+
 ```rust
 	    /// Fit the model to the dataset
     fn fit(&mut self, dataset: &Dataset, debug_path: &Option<String>) -> Option<Vec<(usize, f64)>> {
@@ -298,6 +306,7 @@ Several variations of GD exist, such as Stochastic GD and mini-batch GD. Specifi
         }
     }
 ```
+
 The `backward_and_update` function computes the gradients and performs the GD step; it uses an algorithm called **Backpropagation** (or Backprop for short) and is explained in the next section.
 # Backpropagation
 Let's do a little recap: We've defined what a neural net is, and defined a loss function that measures how bad the network did on a specific batch of images. Then, we saw how to minimize the loss function using Gradient Descent. If so, the only thing we have left is how to compute the gradients!
@@ -347,6 +356,7 @@ But this time $\frac{\partial{dot_j}}{\partial{b^{(1)}_{j}}} = 1$, and so we hav
 $$\nabla_{Z} \odot step(\text{non activated output of the hidden layer})$$
 We again take the mean over all the rows of this matrix.
 The complete code for the backprop is:
+
 ```rust
         /// Calculate the gradients using backprop and perform a GD step
     fn backward_and_update(
