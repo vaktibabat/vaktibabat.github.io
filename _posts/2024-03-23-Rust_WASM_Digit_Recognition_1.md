@@ -13,6 +13,7 @@ _Prerequisites:_ Some knowledge of Linear Algebra (Matrices, Vectors) and Multiv
 # Digit Recognition
 In this post we tackle the problem the problem of digit recognition, which is considered the "Hello World" of machine learning: Given some 28x28 grayscale image, we need to determine what digit it represents (examples of inputs with their corresponding digits are presented in the next figure). This type of problem is called **multiclass classification**, because we need to classify each image into exactly one of 10 classes.
 ![mnist](/assets/img/neuralnet/mnist-3.0.1.png)
+_1_
 _Source: [https://www.researchgate.net/figure/Example-images-from-the-MNIST-dataset_fig1_306056875](https://www.researchgate.net/figure/Example-images-from-the-MNIST-dataset_fig1_306056875)_
 To help us, we are provided a **dataset** ([MNIST](https://en.wikipedia.org/wiki/MNIST_database)) of 70000 handwritten digits together with what digit they represent (this is called the **label**, and it's what we're trying to predict). This dataset is provided in a CSV file, and we parse it with the following code:
 
@@ -125,19 +126,26 @@ Now let's go through what each individual neuron does:
 Common activation functions include:
 - ReLU (Rectified Linear Unit): $ReLU(z) = max(0, z)$
 ![relu-graph](/assets/img/neuralnet/ReLU_Graph.png)
+_2_
 - Sigmoid: $\sigma(z) = \frac{1}{1 + e^{-z}}$
 ![sigmoid-graph](/assets/img/neuralnet/sigmoid_graph.png)
+_3_
  - Hyperbolic Tangent: $\tanh(z)$
 ![tanh-graph](/assets/img/neuralnet/tanh_graph.png)
+_4_
 Let's do an example of computing the values of each of the neurons in the following network:
 ![aexample-neural-network](/assets/img/neuralnet/example_neural_network.png)
+_4_
 The outputs of neurons  h1 and h2 are:
 ![outputs-h](/assets/img/neuralnet/outputs_h1_h2.png)
+_5_
 Where F is the activation function
 And the outputs of the neurons z1 and z2 in the output layer are:
 ![outputs-z](/assets/img/neuralnet/outputs_z1_z2.png.png)
+_6_
 Note that the output of layer k (except for the last layer, where the output is the same but we don't apply the activation function), expressed with matrix multiplications is:
 ![expressed-mat-mul](/assets/img/neuralnet/expressed_with_mat_mul.png)
+_7_
 In words, this means that the output of layer k is the weight matrix between layer k-1 and layer k dot the output of layer k-1 plus the bias between layer k-1 and layer k. If W^k dot H^(k-1) contains multiple rows, the addition of the bias vector is **broadcasted** by adding it to every row of the matrix. This happens when multiple instances are inputted to the network.
 Note that if we input multiple instances to the network at the same time (we do this by adding a row for each instance in the input matrix), each neuron outputs a column vector and not a number like when the input matrix contains one row.
 We can use this to implement the **forward pass** of the network, which means computing the values of each of the layers (throughout this project we use the ReLU function as the activation function):
@@ -238,6 +246,7 @@ Now that we know what a Neural Net is, let's see how to **train** it on the prob
 # Training the Network
 To train the network, we first need a measure of how bad the network did on a specific batch of inputs. This measure is called the **loss function**, and in the case of multiclass classification, the most common loss function is called the [cross-entropy loss function](https://en.wikipedia.org/wiki/Cross-entropy), and is defined on some batch as
 ![loss-func](/assets/img/neuralnet/loss_func.png)
+_8_
 , where:
 - m is the number of inputs in the batch
 - K is the number of classes (in our case 10)
@@ -264,6 +273,7 @@ To make the network perform well on the task of digit classification, we of cour
 	![gd-step](/assets/img/neuralnet/gd_step.png)Until you get to the desired accuracy 
 The parameter $\alpha$ is called the **learning rate**, and determines the size of the steps we take. If we set it too high, the algorithm will diverge and not find a minimum. If we set it too low, we will take very small steps and possibly get stuck in a **local minimum** (where the gradient is 0, so standard GD can't escape it). Here is an illustration on the function f(x, y) = x^2 + y^2:
 ![gd-example](/assets/img/neuralnet/gd_example.png)
+_9_
 Several variations of GD exist, such as Stochastic GD and mini-batch GD. Specifically, in this post, we use mini-batch GD, which is similar to standard GD, except that we take small batches (for example 50 instances) of the data each time and compute the gradient of the loss function with respect to the batch, and not WRT the entire dataset. We use this variation because it allows us to escape local minima, and is also faster. The code for training ("fitting") the model to the dataset is shown here:
 
 ```rust
@@ -320,47 +330,65 @@ Our goal is to compute the gradient of the loss function WRT every weight and bi
 To accomplish this, we use a process called Backpropagation (or backprop for short). The idea is to first compute the gradient WRT the neurons and weights in the last layer, and then propagate this gradient backward, one layer at a time using the chain rule.
 To illustrate how this is done, consider the next network:
 ![network-with-softmax](/assets/img/neuralnet/network_with_softmax.png)
+_10_
 Consider some input batch X with targets Y (The rows are one-hot encoded; row i is all zeroes except for entry k which is 1, where k is the class that instance i belongs to). Let the predictions of the network be P (Row i is the probability distribution that the network computed for instance i in X).
 Throughout this process, we use the fact that the partial derivative of L WRT z_i (neuron i in the output layer) is P_i -Y_i, where P_i is the i-th column of P, and Y_i is the i-th column of Y (I don't show a proof for this here because this is not a super hard derivative to calculate and it's not really the point)
 We start with computing the gradient of the loss function WRT the weights in the second layer.
 The chain rule tells us that
 ![chain-rule-weights-last](/assets/img/neuralnet/chain_rule_weights_last_layer.png)
+_11_
 Since the output of each neuron in the output layer is
 ![output-layer-out](/assets/img/neuralnet/output_layer_out.png)
+_12_
 the partial derivative of z_j WRT weight i,j in the output layer is easy to calculate:
 ![pd-last-neuron](/assets/img/neuralnet/pd_last_layer_neuron_weight.png)
+_13_
 Note that since X contains multiple instances, each h_i is a column vector and not a number. The other derivative (The loss function WRT z_j) comes out to be P_j - Y_j  from what we've mentioned earlier, and so
 ![pd-loss-weight](/assets/img/neuralnet/pd_loss_out_weight.png)
+_14_
 We can also express this with matrix multiplication (this will come in handy later when we implement the algorithm): 
 ![pd-loss-out-we](/assets/img/neuralnet/pd_loss_out_weight_matmul.png)
+_15_
 Similarily, for the biases, we have
 ![pd-loss-out-b-chain](/assets/img/neuralnet/pd_loss_out_bias_chain.png)
+_16_
 The right derivative (z_j WRT the bias) comes out to be 1, and so
 ![out-bias-grad](/assets/img/neuralnet/out_bias_grad.png)
+_17_
 This is a matrix with multiple rows, while the bias vector is only a vector, so we take the mean over all the rows.
 Now let's move on to the weights and biases in layer 1. As before, we get
 ![chain-pd-loss-weight](/assets/img/neuralnet/chain_pd_loss_weight.png)
+_18_
 This time there are two differences from the previous calculation:
 1. The neurons in the hidden layer apply the activation function, while the neurons in the output layer do not
 2. The neurons in the hidden layer impact both z_1 and z_2, which in turn impact the loss function
 We start with the right derivative (the output of the neuron WRT the weight). The output of neuron  h_j is 
 ![out-reg-neuron](/assets/img/neuralnet/out_regular_neuron.png)
+_19_
 This is just a composition of functions, so we can use the chain rule! Let 
 ![dot-j](/assets/img/neuralnet/dot_j.png)
+_20_
 (This is why we saved the non-activated outputs of the layers when we did the forward pass). We have h_j = ReLU(dot_j), and so
 ![hj-out-chain](/assets/img/neuralnet/hj_out_chain.png)
+_21_
 The derivative of ReLU is the step function: step(x) = (x > 0) ? 1 : 0. Mathematically, it is undefined at x=0, but in practice we set it to 0. If so,
 ![derivative-hj-weight](/assets/img/neuralnet/derivative_hj_weight.png)
+_22_
 Now we compute the other derivative (the loss function WRT h_j). As we mentioned earlier, h_j affects both the value of z_1 and the value of z_2, which, in turn, affect the loss function:
 ![with-chain](/assets/img/neuralnet/with_chain.png)
+_23_
 To use the chain rule we add up the upper chain and the lower chain:
 ![pd-l-hj-chain](/assets/img/neuralnet/pd_L_hj_chain.png)
+_24_
 This comes out to be
 ![pd-l-hj-written-out](/assets/img/neuralnet/pd_L_hj_written_out.png)
+_25_
 We conclude that
 ![pd-l-weight-full](/assets/img/neuralnet/pd_L_weight_full.png)
+_26_
 In terms of matrix multiplication, we have
 ![matrix-pd-loss-weight](/assets/img/neuralnet/matrix_pd_loss_weight.png)
+_27_
 , where ⊙ means element-wise multiplication. The calculation for the gradients with respect to the biases is very similar, so I didn't show it here :)
 The complete code for the backprop is:
 
@@ -411,6 +439,7 @@ fn step(z: f64) -> f64 {
 # Summary
 We've successfully built a Neural Network to solve the problem of digit recognition! In the complete project, which you can find [here](https://github.com/vaktibabat/rust-mnist/tree/main), I also added support for command line arguments (specifying the training hyperparameters and debug mode). Here is the graph of the loss function changing over training:
 ![loss-graph](/assets/img/neuralnet/loss_graph.png)
+_28_
 We achieved a pretty good loss (270/10000 = 2.7% on the graph shown above), although this can be further improved, for example by doing early stopping or adding regularization, but I wanted to keep it simple for now.
 This was a really fun and difficult project to work on, and I've learned a lot both about ML and Rust. If you found any mistakes in the post, let me know :)
 
