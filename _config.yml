@@ -19,7 +19,7 @@ title: Vaktibabat # the main title
 tagline: A (mostly) cybersecurity blog # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  A (mostly) cybersecruity blog
+  Yoray Herzberg's Blog :)
 
 markdown: kramdown
 
@@ -37,7 +37,7 @@ social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: Yoray Herzberg
-  email: example@domain.com # change to your email address
+  email: yoray@sag0li.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
     - https://twitter.com/username # change to your twitter homepage
