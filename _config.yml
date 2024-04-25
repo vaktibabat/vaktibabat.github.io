@@ -19,7 +19,7 @@ title: Vaktibabat # the main title
 tagline: A (mostly) cybersecurity blog # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  Yoray Herzberg's Blog :)
+  A (mostly) Cybersecurity Blog
 
 markdown: kramdown
 
