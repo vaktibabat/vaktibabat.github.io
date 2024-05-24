@@ -1,5 +1,5 @@
 ---
-title: Making a Secure Chat with Rust and Cryptography
+title: Making a Secure Chat in Rust
 date: 2024-05-24 09:25:00 +0800
 categories: [rust, crypto]
 tags: [post]
