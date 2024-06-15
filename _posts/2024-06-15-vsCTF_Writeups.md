@@ -559,7 +559,7 @@ fn auth() -> bool{
 ```
 
 It just compares the username with `admin` and the MD5 hash of the password with `e10adc3949ba59abbe56e057f20f883e`. A quick Google search yields that `e10adc3949ba59abbe56e057f20f883e` is the hash of the string `123456`. Let's test this:
-![vs_gateway_1](vs_gateway_1.png)
+![vs_gateway_1](/assets/img/vsctf2024/vs_gateway_1.png)
 We're in!  Here is the code of the `run` function:
 
 ```rust
