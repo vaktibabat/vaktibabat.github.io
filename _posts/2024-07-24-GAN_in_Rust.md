@@ -1,6 +1,6 @@
 ---
 title: Writing Generative Adverserial Networks (GANs) in Rust!
-date: 2024-01-17 09:25:00 +0800
+date: 2024-07-27 09:25:00 +0800
 categories: [rust, ai]
 tags: [post]
 ---
