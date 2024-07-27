@@ -7,14 +7,17 @@ tags: [post]
 
 # Intro
 Hi everyone! Today, we'll talk about an interesting class of algorithms known as Genetic Algorithms. We will then implement a Rust library that acts as a wrapper around training Genetic Algorithms, and lets users train them after implementing a trait. Then, we will use the library to solve the following problems, 2 of which are very hard (NP-hard) problems:
+
 1. Finding the maximum of a two-variable real function
 2. The Traveling Salesman Problem
 3. The Knapsack Problem
+
 Without further ado, let's get started!
 # Genetic Algorithms
 As their name suggests, Genetic Algorithms (or GAs for short), are algorithms inspired by the biological concepts of Genetics and Evolution. The first computer simulation of evolution was created in 1954 by Nils Aall Barricelli, a Mathematician. They were then expanded upon by Australian quantitative geneticist Alex Fraser in 1957.
 Most GAs involve the optimization (constrained or unconstrained, as we'll see today) of some cost/loss function. For example, GAs can be used to find the minimum of a function, or the shortest Hamiltonian cycle in a Graph (if you don't know what that means, don't worry, we'll cover it later :)). 
 The vast majority of Genetic Algorithms work as follows:
+
 1. Initialize a **population** of possible solutions, called **chromosomes** randomly: for example, if we're trying to maximize a real function of two variables x and y where 0<=x<=10 and 0<=y<=10, each chromosome in our population is a random point in the aforementioned region.  
 	This can be likened to populating a natural habitat, such as a rainforest, with a type of animal, such as an elephant, where each animal has different genes, although all animals are of the same type. For example, we can have one elephant with larger ears and one elephant with smaller ears
 2. Evaluate a **fitness function** F for each chromosome that tells us how good the chromosome is as a solution to our problem. For example, in the case of maximizing a real function, the fitness function is simply the function we are trying to maximize. This is named after the concept of [fitness](https://en.wikipedia.org/wiki/Fitness_(biology)) in biology, which describes the reproductive success of an organism
