@@ -503,3 +503,4 @@ Which only allows us to return the gradients WRT the input, a matrix, and a vect
 2. Introduce CUDA support to allow training the model on the GPU - this lets the model train for far more epochs much quicker, and besides it seems like a very interesting topic :)
 Thanks for reading! I had a lot of fun putting this post together, and I hope you learned from it as much as I did :)
 Yoray
+P.S. All the code for the post can be found in [this](https://github.com/vaktibabat/rustgan) repo
