@@ -1,6 +1,6 @@
 ---
 title: GPU-accelerated hash cracker with Rust and CUDA 
-date: 2024-01-17 09:25:00 +0800
+date: 2024-12-31 09:25:00 +0800
 categories: [cuda, crypto, rust]
 tags: [post]
 ---
