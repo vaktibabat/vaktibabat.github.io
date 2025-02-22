@@ -316,6 +316,7 @@ Now, for each gate in our circuit (in our simplified case there's only one gate 
 - c_01 = E(k^1_off, E(k^2_on, 0 AND 1)) = E(k^1_off, E(k^2_on, 0))
 - c_10 = E(k^1_on, E(k^2_off, 1 AND 0)) = E(k^1_on, E(k^2_off, 0))
 - c_11 = E(k^1_on, E(k^2_on, 1 AND 1)) = E(k^1_on, E(k^2_off, 1))
+
 Where E is some encryption function (we'll use AES in CTR mode). What we're essentially doing is encrypting all possible outputs of the gate based on the input keys. This operation is called **garbling**, and hence the name "Garbled Circuits". In the next step, the garbler sends the other party (called the **receiver**) the 4 ciphertexts. In addition, the garbler sends the key for the wire through which the garbler's bit is sent based on the garbler's bit (so if the garbler's bit x is 0, the garbler sends k^1\_off, and if the garbler's bit is 1, it sends k^1\_on). 
 Note that knowing this key doesn't tell the receiver anything about the garbler's bit, since the key is just that: a key. In the next step, using the OT primitive we've built earlier, the receiver gets the matching key for the wire through which y is sent (wire 2) based on the receiver's bit. Suppose the garbler's bit is 1 and the receiver's bit is 0. Then at this point, the receiver has the following information:
 - c_00
@@ -324,6 +325,7 @@ Note that knowing this key doesn't tell the receiver anything about the garbler'
 - c_11
 - k\^1_on 
 - k\^0_off
+
 Using these, the receiver can try to decrypt each of the 4 ciphertexts using the keys it has. Since only one of the ciphertexts was encrypted using these exact two keys, only one ciphertext will decrypt to a number, and the others will decrypt to gibberish! In this case, only `c_10` will decrypt to 0, and so the receiver learns that the output of the circuit, when evaluated with these two inputs, is 0. 
 Finally, the receiver sends this value to the garbler. Throughout the entire process, the receiver didn't learn anything about the garbler's bit (and vice versa), since all of the computations were performed on encrypted values!
 In the next section, we'll see how to generalize this principle to privately evaluate arbitrary circuits.
@@ -343,6 +345,7 @@ This time, for each gate (except for the output gate), instead of encrypting eit
 - c_01 = E(k^2_off, E(k^3_on, k^4_on)) (we encrypt k^4_on since 0 OR 1 = 1)
 - c_10 = E(k^2_on, E(k^3_off, k^4_on))
 - c_11 = E(k^2_on, E(k^3_on, k^4_on))
+
 The receiver can then use the previously discussed principle to evaluate all gates in the circuit, eventually leading to the output gate, which will output either a 0 or a 1. 
 
 The astute among you might've noticed that with the introduction of keys as gate outputs, the receiver cannot distinguish between the random gibberish resulting from incorrect decryptions, and the correct keys, since after all keys are just random data. To solve this problem, we append a constant amount of zeros to each plaintext prior to encryption so that the receiver will be able to understand which of the keys is correct. 
@@ -667,6 +670,7 @@ The circuit is based on comparing the bits of the inputs one by one, starting fr
 - Compare the second-most-significant bits: 0=0, so continue to the next bit
 - Compare the third-most-significant bits: 1=1, so continue
 - Compare the LSBs: 1 > 0, so B is greater than A
+
 But how do we actually implement this using circuits? Well, for starters, we'll need some way to check equality. To construct this, we'll use XOR -- since the XOR gate outputs true if and only if its two inputs are **different**, by negating XOR (i.e. XNOR), we can create a gate that outputs true if and only if its inputs are equal. For each index 0 <= i < n, we'll denote with `x_i` the result of `A_i XNOR B_i`.
 Now, to check whether a single bit `A_i` is greater than another bit `B_i`, we can simply compute `A_i AND (NOT B_i)`, since the only configuration in which `A_i > B_i` is when `A_i = 1` and `B_i = 0`.
 Piecing together these two components, we can compare the two 4-bit numbers by first comparing the MSBs (`A_3 AND (NOT B_3)`), then checking whether the MSBs are equal and the second-most-significant bit of A is greater than that of B (`x_3 AND A_2 AND (NOT B_2)`), and so on, resulting in the following formula (taken from [Wikipedia](https://en.wikipedia.org/wiki/Digital_comparator)):
