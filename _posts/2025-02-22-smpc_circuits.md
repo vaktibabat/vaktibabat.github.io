@@ -30,7 +30,7 @@ In the next section, we'll discuss the first part of the protocol, which consist
 
 You're probably already familiar with boolean functions -- functions that take in N boolean inputs and return M boolean outputs. For example, `F(x, y, z) = x(y + z)` is a boolean function that takes in 3 boolean values and returns a single value. Such functions can be represented graphically using a DAG, where the nodes represent gates and inputs, and the edges (called _wires_) represent inputs to gates. For example, the previous function can be represented as follows:
 
-![bool_func.png](/assets/smpc_circuits/bool_func.png)
+![bool_func.png](/assets/img/smpc_circuits/bool_func.png)
 
 The outgoing edge from the last AND gate contains the output of the circuit. This graphical model is called a **boolean circuit**. Since most things that can be done on a computer can be done using boolean algebra, we can represent an incredibly wide family of functions using circuits, including our comparison function. 
 
@@ -66,7 +66,7 @@ pub enum Node {
 
 You might wonder how the operation of the gate is represented using a u8. To answer this, we have to think of the gate as a truth table. AND, for example, is represented as follows:
 
-![and_gate.png](/assets/smpc_circuits/and_gate.png)
+![and_gate.png](/assets/img/smpc_circuits/and_gate.png)
 
 We can think of evaluating the gate's output on two inputs A and B as performing a lookup in the truth table's output column. If we store the output column as a 4-bit integer (e.g. AND is represented as 0b1000), we could perform the lookup using bitwise operations. For example, on input A=0 and B=1, we can calculate `A && B = 0b1000 & (1 << 0b01) = 0`, and similarily on inputs A=1 and B=1, we'll calculate `A && B = 0b1000 & (1 << 0b11) = 1`.
 As is common when working with binary trees, we'll use recursion to evaluate the circuit on a given input. We define a function `eval` on `Circuit` that wraps an `eval` function defined on the circuit's output:
@@ -133,7 +133,7 @@ pub fn complex_circuit_test() {
 
 Or, represented graphically:
 
-![circuit_2.png](/assets/smpc_circuits/circuit_2.png)
+![circuit_2.png](/assets/img/smpc_circuits/circuit_2.png)
 
 The test passes, so let's move on to the next section, where we'll implement the cryptographical algorithms. 
 
@@ -305,11 +305,11 @@ Awesome! Now with the OT building block ready, we can start implementing the Gar
 Throughout this section, we'll assume that instead of privately evaluating an arbitrary circuit, the two parties each have one bit (Alice has bit `x` and Bob has bit `y`), and they want to compute `x AND y` privately. This will make understanding the algorithm simpler, and later on we'll see how to transfer what we've learned to arbitrary circuits.
 We begin by looking at our circuit graphically:
 
-![and_circuit.png](/assets/smpc_circuits/and_circuit.png)
+![and_circuit.png](/assets/img/smpc_circuits/and_circuit.png)
 \
 One agreed-upon party, called the **garbler**, assigns two keys to each **wire** (wires are edges connecting two components) in the circuit: the **on key** and the **off key**, resulting in the following setup:
 
-![assigned_keys.png](/assets/smpc_circuits/assigned_keys.png)
+![assigned_keys.png](/assets/img/smpc_circuits/assigned_keys.png)
 
 Now, for each gate in our circuit (in our simplified case there's only one gate -- the AND gate), the garbler computes 4 ciphertexts; one for each possible pair of inputs:
 - c_00 = E(k^1_off, E(k^2_off, 0 AND 0)) = E(k^1_off, E(k^2_off, 0))
@@ -332,11 +332,11 @@ In the next section, we'll see how to generalize this principle to privately eva
 
 While taking this principle and applying it to arbitrary circuits might seem complicated, there's actually not a whole lot to it. Consider the following circuit (we've already seen it in the "Boolean Circuits" section):
 
-![bool_func.png](/assets/smpc_circuits/bool_func.png)
+![bool_func.png](/assets/img/smpc_circuits/bool_func.png)
 
 As before, we assign a key to each wire in the circuit:
 
-![arbitrary_circuit.png](/assets/smpc_circuits/arbitrary_circuit.png)
+![arbitrary_circuit.png](/assets/img/smpc_circuits/arbitrary_circuit.png)
 
 This time, for each gate (except for the output gate), instead of encrypting either a 0 or a 1, we encrypt the gate's output wire's keys. In the output gate, we encrypt a 0 or a 1 as before. For example, for the OR gate in the above circuit, we compute the ciphertexts as follows:
 - c_00 = E(k^2_off, E(k^3_off, k^4_off)) (we encrypt k^4_off since 0 OR 0 = 0)
@@ -671,7 +671,7 @@ But how do we actually implement this using circuits? Well, for starters, we'll 
 Now, to check whether a single bit `A_i` is greater than another bit `B_i`, we can simply compute `A_i AND (NOT B_i)`, since the only configuration in which `A_i > B_i` is when `A_i = 1` and `B_i = 0`.
 Piecing together these two components, we can compare the two 4-bit numbers by first comparing the MSBs (`A_3 AND (NOT B_3)`), then checking whether the MSBs are equal and the second-most-significant bit of A is greater than that of B (`x_3 AND A_2 AND (NOT B_2)`), and so on, resulting in the following formula (taken from [Wikipedia](https://en.wikipedia.org/wiki/Digital_comparator)):
 
-![digital_comparator.png](/assets/smpc_circuits/digital_comparator.png)
+![digital_comparator.png](/assets/img/smpc_circuits/digital_comparator.png)
 
 Implementing this in Rust is pretty straightforward, but one point we need to pay attention to is to correctly represent the gates as 4-bit numbers:
 
@@ -1226,7 +1226,7 @@ That's it! We finished implementing a garbled circuits-based solution to the mil
 
 For the demo, we'll run the algorithm a few times with varying wealth:
 
-![circuits_demo.gif](/assets/smpc_circuits/circuits_demo.gif)
+![circuits_demo.gif](/assets/img/smpc_circuits/circuits_demo.gif)
 
 Cool! As we can see, the correct answer is printed for each pair of wealths, both on the garbler's and the receiver's side.
 
