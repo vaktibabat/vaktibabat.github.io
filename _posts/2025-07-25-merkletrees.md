@@ -33,7 +33,7 @@ In this case, we could first hash these items using some hash function `H` to ge
 
 This is all well and good, but how does it help us solve the original problem? Graphically, we can see that the commitment process induces a tree structure:
 
-![merkle_tree_2](https://github.com/vaktibabat/vaktibabat.github.io/tree/main/assets/img/merkletree/merkle_tree_2.png)
+![merkle_tree_2](https://vaktibabat.github.io/assets/img/merkletree/merkle_tree_2.png)
 
 The crucial property here that lets us do proofs of inclusion over this tree, is the fact that if you have both `A` and `B`, you can compute `AB`. Therefore, to prove that item `a`, for example, is included in the tree, a Prover can send the verifier the following 3 items:
 
@@ -54,11 +54,11 @@ For this reason, Merkle Trees are typically used in cases where the Merkle Root 
 
 Generalizing the algorithm we constructed in the previous case to an arbitrary number of items is much simpler than it sounds, and is based mostly on a divide-and-conquer approach. If you have a dataset of, say, 4 items, `a`, `b`, `c`, and `d`, you first split them into 2 groups: `a and b`, and `c and d`. Then, you run the 2-item algorithm over each 2-item group:
 
-![merkle_tree_4](https://github.com/vaktibabat/vaktibabat.github.io/tree/main/assets/img/merkletree/merkle_tree_4.png)
+![merkle_tree_4](https://vaktibabat.github.io/assets/img/merkletree/merkle_tree_4.png)
 
 And compute the root of the tree as `ABCD = H(AB || CD)`:
 
-![merkle_tree_4_final](https://github.com/vaktibabat/vaktibabat.github.io/tree/main/assets/img/merkletree/merkle_tree_4_final.png)
+![merkle_tree_4_final](https://vaktibabat.github.io/assets/img/merkletree/merkle_tree_4_final.png)
 
 Note that the new root, `ABCD`, represents a commitment over `a`, `b`, `c`, and `d`. If one of these items would change, the commitment would no longer be valid. Proving that an item exists in this larger tree is similar to the 2-item case, but the proof requires sharing an additional hash. To prove that `a` exists in this tree, for example, the prover would send the following data:
 1. The root `ABCD` (as in the simplified case).
@@ -148,7 +148,7 @@ func NewMt(data [][]byte) *MerkleTree {
 
 You might wonder whether splitting the dataset in half, so that the resulting tree is balanced, is always the right approach. Indeed, the assumption here is that provers want to generate proofs of inclusion over all items uniformly, i.e. the aren't items for which proofs are generated more frequently. If, say, 90% of the proofs were generated for item `a`, we could construct the tree as follows:
 
-![[unbalanced_merkle_tree.png]]
+![unbalanced_merkle_tree](https://vaktibabat.github.io/assets/img/merkletree/unbalanced_merkle_tree.png)
 
 Then, proofs for `A` would require sending only one additional hash, instead of two: `BCD`. For small datasets the difference is negligible, but when you have millions of items and send thousands of proofs over the wire per second, this starts to matter. I didn't implement this type of unbalanced tree in the code, but it's worth keeping in mind :)
 
