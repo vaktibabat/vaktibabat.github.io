@@ -16,10 +16,10 @@ timezone: Asia/Jerusalem
 
 title: Vaktibabat # the main title
 
-tagline: Yoray Herzberg''s Weblog # it will display as the sub-title
+tagline: Yoray Herzberg's Weblog # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-   Yoray Herzberg''s Weblog
+   Yoray Herzberg's Weblog
 
 markdown: kramdown
 
