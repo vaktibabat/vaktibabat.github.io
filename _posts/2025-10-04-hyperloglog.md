@@ -862,6 +862,7 @@ It's mostly identical to the last benchmark, except we read lines in batches of 
 | **numbers.txt**     | 639.92                          | 62.478                       | 759.99                            | 21.190                         |
 | **shakespeare.txt** | 14.791                          | 0.0009                       | 18.419                            | 0.385                          |
 | **creditcard.csv**  | 201.22                          | 8.7939                       | 185.05                            | 3.192                          |
+
 Huh?! Wasn't SIMD supposed to improve our performance? Why are we worse on most benchmarks? 
 
 #### Optimizing SIMD
@@ -1016,6 +1017,7 @@ Here would be a good moment to stop and try to figure out why our improvement fa
 | **numbers.txt**     | 10M     | 5                         | 0                          |
 | **shakespeare.txt** | 124,456 | 11.05                     | 4.461                      |
 | **creditcard.csv**  | 284,808 | 132.5                     | 1.454                      |
+
 Let's unpack what this means:
 
 - For `numbers.txt`, each string in a batch of N strings contains **exactly** 5 blocks. The reason SIMD might not really help here, and even be worse than scalar, is twofold. First, 5 blocks is small by scalar standards, so by the time you've laid out the data nicely for SIMD in a vector, and iterated worked over it in SIMD, scalar might've already finished with the batch faster. Second, random writes (scatters), namely to the `registers` field of `HyperLogLog`, is an expensive operation which, as you'll recall, scalar performs conditionally (i.e. only if the max changes). SIMD, on the other hand, scatters every time, regardless of whether there is actually a change. 
@@ -1090,6 +1092,7 @@ Using this approach, our new results are:
 | **numbers.txt**     | 720.79                               | 1.18                              | 3376                                        | 205.74                                   |
 | **shakespeare.txt** | 15.15                                | 0.172                             | 36.5                                        | 3.2906                                   |
 | **creditcard.csv**  | 123.92                               | 0.844                             | 155.37                                      | 9.939                                    |
+
 How can this be?! Multithreading decimated our performance. 
 #### Multithreading v2
 Contrary to our expectations, not only did multithreading not improve our performance, it made it worse, even going so far as a factor of 4x slowdown on some datasets. With multithreading, in theory, we should read batches of 8 lines, while concurrently processing already-read batches and inserting them into our HLL.
@@ -1117,6 +1120,7 @@ while let Ok(batch) = rx.recv() {
 ```
 
 #### Benchmarking
+
 |                     | **Estimated Runtime (ms) - SIMD v2** | **Std. Deviation (ms) - SIMD v2** | **Estimated Runtime (ms)** - Multithreading | **Std. Deviation (ms)** - Multithreading | **Estimated Runtime (ms)** - Multithreading v2 | **Std. Deviation (ms)** - Multithreading v2 | **Scalar Mean** | **Scalar Std. Deviation** |
 | ------------------- | ------------------------------------ | --------------------------------- | ------------------------------------------- | ---------------------------------------- | ---------------------------------------------- | ------------------------------------------- | --------------- | ------------------------- |
 | **numbers.txt**     | 720.79                               | 1.18                              | 3376                                        | 205.74                                   | 1002                                           | 47.56                                       | 639.92          | 62.478                    |
@@ -1386,6 +1390,8 @@ That's also part of the fun, and at some point I'd like to adapt this implementa
 Additionally, at some point I'd like to implement an optimized implementation on a GPU, using CUDA or Metal. The architecture there is entirely different, which leads to other interesting design choices and optimizations. That, though, will also be left for another post :).
 
 Thank you for reading! The code is available [here](https://github.com/vaktibabat/rusthyperloglog).
+
 Yoray
+
 
 > Enjoyed this post? Consider [buying me a coffee](https://buymeacoffee.com/vaktibabat)!
