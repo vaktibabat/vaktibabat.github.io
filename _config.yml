@@ -16,10 +16,10 @@ timezone: Asia/Jerusalem
 
 title: Vaktibabat # the main title
 
-tagline: A (mostly) cybersecurity blog # it will display as the sub-title
+tagline: Yoray Herzberg''s Weblog # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
-  A (mostly) Cybersecurity Blog
+   Yoray Herzberg''s Weblog
 
 markdown: kramdown
 
@@ -37,14 +37,15 @@ social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: Yoray Herzberg
-  email: yoray@sag0li.com # change to your email address
+  email: yoray.herzberg@gmail.com # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://twitter.com/username # change to your twitter homepage
-    - https://github.com/username # change to your github homepage
+    - https://twitter.com/sag0li # change to your twitter homepage
+    - https://github.com/vaktibabat # change to your github homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     - https://www.linkedin.com/in/yoray-herzberg-b8155621b
+    - https://buymeacoffee.com/vaktibabat
 
 google_site_verification: yXxwv3pCqxYb8VM0cMq5Z9v1k0UblBVIPSgv1cMJtrE # fill in to your verification string
 
@@ -65,7 +66,7 @@ google_analytics:
 #     light  - Use the light color scheme
 #     dark   - Use the dark color scheme
 #
-theme_mode: # [light|dark]
+theme_mode: 
 
 # The CDN endpoint for images.
 # Notice that once it is assigned, the CDN url
